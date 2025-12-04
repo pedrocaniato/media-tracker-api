@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PRISMA_DATABASE_URL")
+}
+
+// ----------------------------------------------------
+// SEUS MODELOS DE DADOS (USER, MEDIA, USERMEDIA)
+// ----------------------------------------------------
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+
+  userMedia UserMedia[]
+}
+
+model Media {
+  id          String    @id @default(cuid())
+  title       String
+  type        String
+  releaseDate DateTime?
+  genre       String?
+  posterUrl   String?
+
+  // ---------------------------------------------------------------------------------------
+  // COMENTADO: Removemos o caminho de volta para satisfazer a validação P1012.
+  // Isso torna a relação unidirecional.
+  // ---------------------------------------------------------------------------------------
+  // userMedia UserMedia[]
+}
+
+model UserMedia {
+  id String @id @default(cuid())
+
+  status String
+  rating Int?
+  review String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  // O campo mediaId é mantido como opcional (String?)
+  mediaId String?
+  
+  // ---------------------------------------------------------------------------------------
+  // COMENTADO: Esta linha (@relation) foi removida para impedir o erro P2003 (Foreign Key).
+  // ---------------------------------------------------------------------------------------
+  // media Media? @relation(fields: [mediaId], references: [id]) 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // MANTIDO: O índice único é necessário para o seu código `prisma.userMedia.upsert` funcionar.
+  @@unique([userId, mediaId])
+}
