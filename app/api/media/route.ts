@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authMiddleware } from '@/lib/authMiddleware';
-import { prisma } from '@/lib/db';
+import { authMiddleware } from '@lib/authMiddleware';
+import { prisma } from '@lib/db';
 
 // Adicionar um item (filme/livro/série) à lista do usuário
 export async function POST(req: NextRequest) {

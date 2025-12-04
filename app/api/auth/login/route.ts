@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/db'; // <-- Agora usando '@/lib/db'
+import { prisma } from '@lib/db'; // <-- Agora usando '@/lib/db'
 import bcrypt from 'bcryptjs';
-import { signToken } from '@/lib/jwt'; 
+import { signToken } from '@lib/jwt'; 
 
 export async function POST(req: NextRequest) {
   try {

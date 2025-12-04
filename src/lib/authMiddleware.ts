@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/jwt'; 
+import { verifyToken } from '@lib/jwt'; 
 
 // Esta função injeta o userId no objeto de requisição (não nativo do Next, 
 // mas usaremos um objeto simples para manter o userId na requisição para a rota).

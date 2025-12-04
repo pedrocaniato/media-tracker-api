@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'; // Esta deve ser a ÚNICA importação
 
 // Defina a chave secreta. 
 // EM PRODUÇÃO, esta chave deve ser uma STRING LONGA, COMPLEXA e salva em uma
