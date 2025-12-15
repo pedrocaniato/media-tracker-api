@@ -1,40 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authMiddleware } from '@lib/authMiddleware';
 import { prisma } from '@lib/db';
+import { Prisma } from '@prisma/client'; // Importação correta para acessar PrismaClientKnownRequestError
 
-// A interface AuthenticatedRequest foi removida daqui, pois o TS/ESLint
-// reclamava que ela não era usada diretamente nas funções GET/POST.
-// O tipo é inferido através da função authMiddleware.
-
-// ===============================================
-// ✅ FUNÇÃO GET: Listar todos os itens de mídia do usuário
-// ===============================================
 export async function GET(req: NextRequest) {
-  // 1. Aplicar o Middleware de Autenticação
   const authResult = authMiddleware(req);
 
-  // 2. Se o resultado for uma NextResponse, é um erro de autenticação (401)
   if (authResult instanceof NextResponse) {
-    return authResult;
+    return authResult; // Erro de autenticação (401)
   }
 
-  // 3. O usuário está autenticado, extraímos o userId
-  // Nota: O TypeScript agora confia que authResult tem a propriedade userId,
-  // pois o authMiddleware garante isso ou retorna uma NextResponse.
   const userId = (authResult as { userId: string }).userId;
 
   try {
-    // 4. Buscar todos os registros de UserMedia para este usuário
     const userMediaList = await prisma.userMedia.findMany({
       where: {
         userId: userId,
       },
       orderBy: {
-        updatedAt: 'desc', // Mostra os itens atualizados mais recentemente primeiro
+        updatedAt: 'desc',
       }
     });
 
-    // 5. Retorna a lista de mídias rastreadas
     return NextResponse.json(
       { 
         message: 'Lista de mídia recuperada com sucesso!', 
@@ -50,19 +37,13 @@ export async function GET(req: NextRequest) {
 }
 
 
-// ===============================================
-// FUNÇÃO POST: Adicionar ou atualizar um item na lista do usuário
-// ===============================================
 export async function POST(req: NextRequest) {
-  // 1. Aplicar o Middleware
   const authResult = authMiddleware(req);
 
-  // 2. Se o resultado for uma NextResponse, é um erro de autenticação (401)
   if (authResult instanceof NextResponse) {
-    return authResult;
+    return authResult; // Erro de autenticação (401)
   }
 
-  // 3. Se passou pela autenticação, o userId é injetado na requisição.
   const userId = (authResult as { userId: string }).userId;
 
   try {
@@ -72,10 +53,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'ID da mídia e Status são obrigatórios.' }, { status: 400 });
     }
 
-    // A lógica de criação de UserMedia (marcar o item na lista do usuário)
     const userMedia = await prisma.userMedia.upsert({
       where: {
-        // Usa a restrição unique composta que criamos no schema.prisma
         userId_mediaId: {
           userId: userId,
           mediaId: mediaId,
@@ -106,5 +85,47 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Erro ao adicionar/atualizar mídia:', error);
     return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });
+  }
+}
+
+
+export async function DELETE(req: NextRequest) {
+  const authResult = authMiddleware(req);
+
+  if (authResult instanceof NextResponse) {
+    return authResult; // Erro de autenticação (401)
+  }
+
+  const userId = (authResult as { userId: string }).userId;
+  
+  const { searchParams } = new URL(req.url);
+  const mediaId = searchParams.get('mediaId');
+
+  if (!mediaId) {
+    return NextResponse.json({ message: 'O ID da mídia (mediaId) é obrigatório nos parâmetros de busca.' }, { status: 400 });
+  }
+
+  try {
+
+    await prisma.userMedia.delete({
+      where: {
+        userId_mediaId: {
+          userId: userId,
+          mediaId: mediaId,
+        },
+      },
+    });
+
+    return new NextResponse(null, { status: 204 });
+
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return NextResponse.json({ message: 'Item de mídia não encontrado para este usuário.' }, { status: 404 });
+      }
+    }
+
+    console.error('Erro ao deletar mídia:', error);
+    return NextResponse.json({ message: 'Erro interno do servidor ao deletar dados.' }, { status: 500 });
   }
 }
