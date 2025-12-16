@@ -5,16 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 // Importação do componente MediaCard da nova pasta
 import MediaCard from "./components/MediaCard/MediaCard"; 
 import { Search, Loader2, XCircle } from "lucide-react"; 
-
-// 1. Interfaces para tipar os dados
-interface NormalizedMedia {
-  uniqueId: string;
-  type: "filme" | "serie" | "livro";
-  title: string;
-  releaseYear: string;
-  posterUrl: string;
-  authors?: string[];
-}
+import { NormalizedMedia } from '@/app/types/media';
 
 type MediaType = "filme" | "serie" | "livro";
 

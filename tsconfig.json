@@ -22,8 +22,10 @@
     "baseUrl": ".",
 
     "paths": {
-      "@lib/*": ["src/lib/*"] 
-    }
+  "@/*": ["./*"],
+  "@types/*": ["app/types/*"],
+  "@lib/*": ["src/lib/*"]
+}
   },
   "include": [
     "next-env.d.ts",

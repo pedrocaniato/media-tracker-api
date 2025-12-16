@@ -2,13 +2,10 @@
 
 import React from 'react';
 import { Film, Tv, Book } from 'lucide-react';
+import { NormalizedMedia } from '@/app/types/media';
 
 interface PosterSectionProps {
-  media: {
-    title: string;
-    type: 'filme' | 'serie' | 'livro';
-    posterUrl?: string;
-  };
+  media: NormalizedMedia;
 }
 
 const PosterSection: React.FC<PosterSectionProps> = ({ media }) => {

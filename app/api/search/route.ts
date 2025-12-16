@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { NormalizedMedia } from '@/app/types/media';
 
 // 1. CHAVES DE API
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
@@ -17,14 +18,6 @@ if (!GOOGLE_BOOKS_API_KEY) {
 // ===============================================
 
 // Formato de saída unificado para todas as mídias (o que retorna para o frontend)
-interface NormalizedMedia {
-    uniqueId: string; 
-    type: 'filme' | 'serie' | 'livro';
-    title: string;
-    releaseYear: string;
-    posterUrl: string;
-    authors?: string[]; // Apenas para livros
-}
 
 // Tipagem mínima para itens de Filmes/Séries do TMDB
 interface TMDBItem {
