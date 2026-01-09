@@ -104,7 +104,7 @@ const fetchTMDB = async (query: string, mediaType: 'movie' | 'tv'): Promise<Norm
             return hasPoster && isPopularEnough;
         });
         
-        console.log(`Filtro aplicado para 'filme'. Resultados originais: ${data.results.length}. Resultados filtrados: ${itemsToProcess.length}`);
+        
     }
 
 
@@ -156,7 +156,7 @@ const fetchBooksAPI = async (query: string): Promise<NormalizedMedia[]> => {
         // Adiciona a chave da API apenas se estiver configurada
         url += `&key=${GOOGLE_BOOKS_API_KEY}`;
     }
-    console.log(url)
+    
     try {
         const response = await fetch(url);
         

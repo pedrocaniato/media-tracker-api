@@ -1,131 +1,121 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { authMiddleware } from '@lib/authMiddleware';
 import { prisma } from '@lib/db';
-import { Prisma } from '@prisma/client'; // Importação correta para acessar PrismaClientKnownRequestError
+import { Prisma } from '@prisma/client';
 
 export async function GET(req: NextRequest) {
   const authResult = authMiddleware(req);
+  if (authResult instanceof NextResponse) return authResult;
 
-  if (authResult instanceof NextResponse) {
-    return authResult; // Erro de autenticação (401)
-  }
+  const { userId } = authResult as { userId: string };
 
-  const userId = (authResult as { userId: string }).userId;
+  const media = await prisma.userMedia.findMany({
+    where: { userId },
+    orderBy: { updatedAt: 'desc' },
+  });
 
-  try {
-    const userMediaList = await prisma.userMedia.findMany({
-      where: {
-        userId: userId,
-      },
-      orderBy: {
-        updatedAt: 'desc',
-      }
-    });
-
-    return NextResponse.json(
-      { 
-        message: 'Lista de mídia recuperada com sucesso!', 
-        data: userMediaList 
-      }, 
-      { status: 200 }
-    );
-
-  } catch (error) {
-    console.error('Erro ao recuperar a lista de mídia:', error);
-    return NextResponse.json({ message: 'Erro interno do servidor ao buscar dados.' }, { status: 500 });
-  }
+  return NextResponse.json({ data: media });
 }
-
 
 export async function POST(req: NextRequest) {
   const authResult = authMiddleware(req);
+  if (authResult instanceof NextResponse) return authResult;
 
-  if (authResult instanceof NextResponse) {
-    return authResult; // Erro de autenticação (401)
-  }
+  const { userId } = authResult as { userId: string };
+  const body = await req.json();
 
-  const userId = (authResult as { userId: string }).userId;
+  const {
+    uniqueId,
+    type,
+    title,
+    posterUrl,
+    releaseYear,
+    status,
+    rating,
+    review,
+  } = body;
 
-  try {
-    const { mediaId, status, rating, review } = await req.json();
-
-    if (!mediaId || !status) {
-      return NextResponse.json({ message: 'ID da mídia e Status são obrigatórios.' }, { status: 400 });
-    }
-
-    const userMedia = await prisma.userMedia.upsert({
-      where: {
-        userId_mediaId: {
-          userId: userId,
-          mediaId: mediaId,
-        },
-      },
-      update: {
-        status: status,
-        rating: rating,
-        review: review,
-      },
-      create: {
-        userId: userId,
-        mediaId: mediaId,
-        status: status,
-        rating: rating,
-        review: review,
-      },
-    });
-
+  if (!uniqueId || !type || !title || !status) {
     return NextResponse.json(
-      { 
-        message: 'Mídia adicionada/atualizada com sucesso!', 
-        data: userMedia 
-      }, 
-      { status: 201 }
+      { message: 'Campos obrigatórios ausentes.' },
+      { status: 400 }
     );
-
-  } catch (error) {
-    console.error('Erro ao adicionar/atualizar mídia:', error);
-    return NextResponse.json({ message: 'Erro interno do servidor.' }, { status: 500 });
   }
-}
 
+  // ✅ NORMALIZAÇÃO
+  const releaseYearInt =
+    releaseYear !== undefined && releaseYear !== null
+      ? Number(releaseYear)
+      : null;
+
+  const userMedia = await prisma.userMedia.upsert({
+    where: {
+      userId_uniqueId: {
+        userId,
+        uniqueId,
+      },
+    },
+    update: {
+      status,
+      rating: rating ?? null,
+      review: review ?? null,
+    },
+    create: {
+      userId,
+      uniqueId,
+      type,
+      title,
+      posterUrl,
+      releaseYear: releaseYearInt,
+      status,
+      rating: rating ?? null,
+      review: review ?? null,
+    },
+  });
+
+  return NextResponse.json({ data: userMedia }, { status: 201 });
+}
 
 export async function DELETE(req: NextRequest) {
   const authResult = authMiddleware(req);
+  if (authResult instanceof NextResponse) return authResult;
 
-  if (authResult instanceof NextResponse) {
-    return authResult; // Erro de autenticação (401)
-  }
-
-  const userId = (authResult as { userId: string }).userId;
-  
+  const { userId } = authResult as { userId: string };
   const { searchParams } = new URL(req.url);
-  const mediaId = searchParams.get('mediaId');
+  const uniqueId = searchParams.get('uniqueId');
 
-  if (!mediaId) {
-    return NextResponse.json({ message: 'O ID da mídia (mediaId) é obrigatório nos parâmetros de busca.' }, { status: 400 });
+  if (!uniqueId) {
+    return NextResponse.json(
+      { message: 'uniqueId é obrigatório.' },
+      { status: 400 }
+    );
   }
 
   try {
-
     await prisma.userMedia.delete({
       where: {
-        userId_mediaId: {
-          userId: userId,
-          mediaId: mediaId,
+        userId_uniqueId: {
+          userId,
+          uniqueId,
         },
       },
     });
 
     return new NextResponse(null, { status: 204 });
-
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        return NextResponse.json({ message: 'Item de mídia não encontrado para este usuário.' }, { status: 404 });
-      }
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2025'
+    ) {
+      return NextResponse.json(
+        { message: 'Mídia não encontrada.' },
+        { status: 404 }
+      );
     }
 
-    console.error('Erro ao deletar mídia:', error);
-    return NextResponse.json({ message: 'Erro interno do servidor ao deletar dados.' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Erro ao remover mídia.' },
+      { status: 500 }
+    );
   }
 }
