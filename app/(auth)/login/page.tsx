@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-// import { useRouter } from 'next/navigation'; // REMOVIDO: Para evitar erro de resolução do módulo
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/context/AuthContext';
 import { Loader2, LogIn, Mail, Lock } from 'lucide-react';
 
 const LoginPage: React.FC = () => {
@@ -9,7 +10,8 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  // const router = useRouter(); // REMOVIDO: Para evitar erro de resolução do módulo
+  const router = useRouter();
+  const { login } = useAuth();
 
   // Função para simular a chamada à API de Login
   const handleLogin = async (e: React.FormEvent) => {
@@ -32,11 +34,11 @@ const LoginPage: React.FC = () => {
 
       const data = await response.json();
       
-      // 1. Armazenar o token no localStorage
-      localStorage.setItem('userToken', data.token);
+      // 1. Usar a função de login do contexto (que agora é async e atualiza o estado)
+      await login(data.token);
       
-      // 2. Redirecionar para a página de busca usando o método nativo do navegador
-      window.location.href = '/search';
+      // 2. Redirecionar para a página de busca usando o roteador do Next.js
+      router.push('/search');
 
     } catch (err) {
       setError((err as Error).message);

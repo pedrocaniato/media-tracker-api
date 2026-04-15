@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   description: 'Sistema de rastreamento de mídia para filmes e séries.',
 };
 
+import { AuthProvider } from '@/app/context/AuthContext';
+
 // O componente de layout envolve todas as páginas
 export default function RootLayout({
   children,
@@ -24,9 +26,11 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body className={inter.className}>
-        <main className="min-h-screen">
-          {children}
-        </main>
+        <AuthProvider>
+          <main className="min-h-screen">
+            {children}
+          </main>
+        </AuthProvider>
       </body>
     </html>
   );

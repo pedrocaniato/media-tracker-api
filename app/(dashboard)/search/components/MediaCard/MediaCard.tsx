@@ -2,6 +2,8 @@ import React from "react";
 import PosterSection from "./PosterSection";
 import ActionButton from "./ActionButton";
 import { NormalizedMedia } from "@/app/types/media";
+import { useRouter } from "next/navigation";
+
 
 export type MediaStatus = "VISTO" | "ASSISTINDO" | "QUERO_VER";
 
@@ -23,13 +25,20 @@ const MediaCard: React.FC<MediaCardProps> = ({
   const isBook = media.type === "livro";
   const isDone = status === "VISTO"; // 🔥 fonte única da verdade
 
+  const router = useRouter();
+
   return (
     <div
       onClick={onClick}
       className="relative flex cursor-pointer flex-col overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl group"
     >
       {/* Poster */}
-      <PosterSection media={media} />
+      <PosterSection
+        media={media}
+        onClick={() => {
+          router.push(`/media/${media.uniqueId}`);
+        }}
+      />
 
       {/* Conteúdo */}
       <div className="relative z-10 -mt-14">

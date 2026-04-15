@@ -6,5 +6,20 @@ export interface NormalizedMedia {
   posterUrl?: string;
   authors?: string[];
 
-  status?: "VISTO" | "EM_PROGRESSO" | "QUERO_VER";
+  status?: "VISTO" | "ASSISTINDO" | "QUERO_VER";
+  isFavorite?: boolean;
 }
+
+export interface UserMedia extends NormalizedMedia {
+  id: string;
+  userId: string;
+  rating?: number;
+  review?: string;
+  updatedAt: string;
+}
+
+export interface MediaDetails extends NormalizedMedia {
+  backdropUrl?: string;
+  overview?: string;
+}
+

@@ -14,15 +14,17 @@ interface AuthenticatedRequest extends NextRequest {
  * @returns A requisição com o userId injetado ou uma resposta de erro (401).
  */
 export function authMiddleware(req: NextRequest): NextResponse | AuthenticatedRequest {
-  // 1. Pular a autenticação para as rotas de autenticação (Cadastro e Login)
-  if (req.nextUrl.pathname.startsWith('/api/auth/')) {
-    return req as AuthenticatedRequest; // Retorna a requisição original
+  // 1. Pular a autenticação APENAS para as rotas públicas de auth
+  const publicRoutes = ['/api/auth/login', '/api/auth/register'];
+  if (publicRoutes.includes(req.nextUrl.pathname)) {
+    return req as AuthenticatedRequest;
   }
 
   // 2. Extrair o Token do cabeçalho
-  // O token geralmente vem no formato: 'Bearer SEU_TOKEN_JWT'
   const authHeader = req.headers.get('authorization');
   const token = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+  
+  console.log("Token extraído:", token ? `${token.substring(0, 10)}...` : "Nenhum");
 
   if (!token) {
     return NextResponse.json({ message: 'Acesso negado. Token não fornecido.' }, { status: 401 });
@@ -30,13 +32,13 @@ export function authMiddleware(req: NextRequest): NextResponse | AuthenticatedRe
 
   // 3. Verificar o Token
   const payload = verifyToken(token);
+  console.log("User ID decodificado:", payload?.userId || "Falha na decodificação");
 
   if (!payload) {
     return NextResponse.json({ message: 'Token inválido ou expirado.' }, { status: 401 });
   }
 
   // 4. Injetar o userId na requisição
-  // Para fins de simplificação, criamos a interface AuthenticatedRequest
   const authenticatedReq = req as AuthenticatedRequest;
   authenticatedReq.userId = payload.userId;
 

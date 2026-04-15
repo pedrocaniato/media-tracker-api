@@ -1,20 +1,23 @@
-import { redirect } from 'next/navigation';
+"use client";
 
-/**
- * Componente da Página Inicial (Rota /).
- * Numa aplicação focada em autenticação, esta rota
- * simplesmente redireciona o utilizador para a página de Login.
- */
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 export default function HomePage() {
-  // 1. Redireciona o utilizador para a página de Login
-  // Em aplicações reais, aqui faria uma verificação de sessão antes do redirecionamento.
-  redirect('/login');
-  
-  // O componente nunca chegará a este ponto, mas precisamos retornar JSX
-  // para satisfazer o TypeScript/React, caso o redirecionamento falhe.
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('userToken');
+    if (token) {
+      router.replace('/search');
+    } else {
+      router.replace('/login');
+    }
+  }, [router]);
+
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-50">
-      <p>Redirecionando para Login...</p>
+    <div className="flex justify-center items-center h-screen bg-black text-white">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-800 border-t-indigo-600" />
     </div>
   );
 }

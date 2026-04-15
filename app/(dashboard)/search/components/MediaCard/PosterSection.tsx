@@ -6,14 +6,18 @@ import { NormalizedMedia } from '@/app/types/media';
 
 interface PosterSectionProps {
   media: NormalizedMedia;
+  onClick?: () => void;
 }
 
-const PosterSection: React.FC<PosterSectionProps> = ({ media }) => {
+const PosterSection: React.FC<PosterSectionProps> = ({ media, onClick }) => {
   const IconComponent =
     media.type === 'filme' ? Film : media.type === 'serie' ? Tv : Book;
 
   return (
-    <div className="relative w-full h-64 overflow-hidden rounded-t-2xl bg-neutral-900 group">
+    <div
+      onClick={onClick}
+      className="relative w-full h-64 overflow-hidden rounded-t-2xl bg-neutral-900 group"
+    >
       {/* Poster */}
       <img
         src={

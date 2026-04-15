@@ -1,11 +1,100 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS — Dark Mode (default)
+   ───────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg:          #09090b;   /* page background     */
+  --bg-subtle:   #111113;   /* cards, panels        */
+  --bg-hover:    #18181b;   /* hover state          */
+  --bg-active:   #1f1f23;   /* pressed / selected   */
 
-/* Opcional: Estilos base para garantir a consistência */
+  /* Borders */
+  --border:      #27272a;   /* default border       */
+  --border-subtle: #1f1f22; /* very faint dividers  */
+
+  /* Text */
+  --text:        #fafafa;   /* primary text         */
+  --text-muted:  #71717a;   /* secondary / labels   */
+  --text-faint:  #3f3f46;   /* placeholders         */
+
+  /* Accent — single solid color (indigo) */
+  --accent:      #6366f1;
+  --accent-fg:   #ffffff;
+  --accent-subtle: #1e1f3a;
+
+  /* Semantic */
+  --success:     #22c55e;
+  --error:       #ef4444;
+  --error-subtle:#2a1215;
+}
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS — Light Mode
+   ───────────────────────────────────────────── */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:          #fafafa;
+    --bg-subtle:   #ffffff;
+    --bg-hover:    #f4f4f5;
+    --bg-active:   #e4e4e7;
+    --border:      #e5e7eb;
+    --border-subtle: #f0f0f2;
+    --text:        #09090b;
+    --text-muted:  #71717a;
+    --text-faint:  #a1a1aa;
+    --accent:      #6366f1;
+    --accent-fg:   #ffffff;
+    --accent-subtle: #eef2ff;
+    --success:     #16a34a;
+    --error:       #dc2626;
+    --error-subtle:#fef2f2;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   BASE
+   ───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR — hide utility
+   ───────────────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* ─────────────────────────────────────────────
+   POSTER SKELETON SHIMMER
+   ───────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-subtle) 25%,
+    var(--bg-hover)  50%,
+    var(--bg-subtle) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 8px;
 }
