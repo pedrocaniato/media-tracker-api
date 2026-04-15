@@ -9,13 +9,13 @@ import { Prisma } from "@prisma/client";
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: uniqueId } = await params;
   const authResult = authMiddleware(req);
   if (authResult instanceof NextResponse) return authResult;
 
   const { userId } = authResult as { userId: string };
-  const uniqueId = params.id;
 
   const media = await prisma.userMedia.findUnique({
     where: {
@@ -103,13 +103,13 @@ export async function POST(req: NextRequest) {
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: uniqueId } = await params;
   const authResult = authMiddleware(req);
   if (authResult instanceof NextResponse) return authResult;
 
   const { userId } = authResult as { userId: string };
-  const uniqueId = params.id;
 
   try {
     await prisma.userMedia.delete({
