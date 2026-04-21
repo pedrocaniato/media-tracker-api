@@ -6,6 +6,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useSearch } from "@/app/context/SearchContext";
 import { User, LogOut, Search as SearchIcon, Film, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { Logo } from "./Logo";
 
 interface NavbarProps {
   children?: React.ReactNode;
@@ -28,13 +29,8 @@ export const Navbar: React.FC<NavbarProps> = ({ children }) => {
       <div className="max-w-screen-xl mx-auto flex items-center justify-between h-16 gap-6">
         {/* Left: Logo */}
         <div className="flex items-center gap-8 flex-1">
-          <Link href="/search" className="flex items-center gap-2 group shrink-0">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center transition-transform group-hover:scale-110">
-              <Film size={18} className="text-white" fill="currentColor" />
-            </div>
-            <span className="text-sm font-bold tracking-tight hidden lg:block">
-              MEDIA TRACKER
-            </span>
+          <Link href="/search">
+            <Logo />
           </Link>
 
           {/* Search bar - available globally */}
